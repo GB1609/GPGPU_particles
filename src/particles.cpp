@@ -20,7 +20,6 @@ void processInput(GLFWwindow *window);
 // settings
 const unsigned int SCR_WIDTH = 1000;
 const unsigned int SCR_HEIGHT = 1000;
-bool mouseActived = false;
 
 // camera
 glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 9.0f);
@@ -181,12 +180,9 @@ void processInput(GLFWwindow *window)
 		cameraPos = glm::vec3(0.0f, 0.0f, 9.0f);
 		cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 		cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+		moved=true;
 	}
 
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
-		mouseActived = true;
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2) == GLFW_PRESS)
-		mouseActived = false;
 
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
@@ -215,7 +211,7 @@ void processInput(GLFWwindow *window)
 }
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	if (mouseActived)
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
 	{
 		if (firstMouse || moved)
 		{
@@ -249,9 +245,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 		cameraFront = glm::normalize(front);
 	}
 }
-
-// glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	if (fov >= 1.0f && fov <= 45.0f)
