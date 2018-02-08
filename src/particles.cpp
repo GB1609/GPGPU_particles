@@ -9,6 +9,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "../lib/stb_image.h"
 #include "cube.h"
+#include "particle.h"
 using namespace std;
 using namespace glm;
 
@@ -22,7 +23,7 @@ const unsigned int SCR_WIDTH = 1000;
 const unsigned int SCR_HEIGHT = 1000;
 
 // camera
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 9.0f);
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -40,15 +41,10 @@ float lastFrame = 0.0f;
 
 int main()
 {
-	// glfw: initialize and configure
-	// ------------------------------
 	glfwInit();
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	// glfw window creation
-	// --------------------
 	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
 	if (window == NULL)
 	{
@@ -60,18 +56,16 @@ int main()
 	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
-
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
 	if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
 		return -1;
 	}
 
-	Shader particlesShader("src/cameraVS.vs", "src/cameraFS.fs");
-	float verticeLC = 0.6f;
-	float verticeBC = 2.0f;
+	Shader cubesShader("src/cameraVS.vs", "src/cameraFS.fs");
+	float verticeLC = 0.8f;
+	float verticeBC = 2.5f;
 	Cube cube(verticeLC);
 	float verticesLC[cube.getDimV()];
 	unsigned int indicesLC[cube.getDimI()];
@@ -96,9 +90,9 @@ int main()
 	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	particlesShader.use();
+	cubesShader.use();
 	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
-	particlesShader.setMat4("projection", projection);
+	cubesShader.setMat4("projection", projection);
 
 	glGenVertexArrays(1, &VAObc);
 	glGenBuffers(1, &VBObc);
@@ -110,6 +104,13 @@ int main()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesBC), indicesBC, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
 	glEnableVertexAttribArray(0);
+
+	int numberParticles = 10;
+
+
+
+
+
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -125,27 +126,27 @@ int main()
 
 		// render
 		// ------
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// activate camerashader
-		particlesShader.use();
+		cubesShader.use();
 
 		// pass projection matrix to shader (note that in this case it could change every frame)
 		glm::mat4 projection = glm::perspective(glm::radians(fov), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f,
 				100.0f);
-		particlesShader.setMat4("projection", projection);
+		cubesShader.setMat4("projection", projection);
 
 		// camera/view transformation
 		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-		particlesShader.setMat4("view", view);
+		cubesShader.setMat4("view", view);
 
 		glBindVertexArray(VAOlc);
 		glm::mat4 model;
 		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
 		float angle = 0;
 		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-		particlesShader.setMat4("model", model);
+		cubesShader.setMat4("model", model);
 		glDrawElements(GL_LINES, 32, GL_UNSIGNED_INT, 0);
 
 		glBindVertexArray(VAObc);
@@ -177,12 +178,10 @@ void processInput(GLFWwindow *window)
 
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
 	{
-		cameraPos = glm::vec3(0.0f, 0.0f, 9.0f);
+		cameraPos = glm::vec3(0.0f, 0.0f, 10.0f);
 		cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 		cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
-		moved=true;
 	}
-
 
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
