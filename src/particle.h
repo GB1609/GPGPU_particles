@@ -1,57 +1,71 @@
-#ifndef BALLOBJECT_H
-#define BALLOBJECT_H
+/*
+ * Cube.h
+ *
+ *  Created on: 07 feb 2018
+ *      Author: gb1609
+ */
+
+#ifndef SRC_PARTICLE_H_
+#define SRC_PARTICLE_H_
 
 #include <glm/glm.hpp>
 
 class Particle
 {
 	public:
-		// Ball state
-		float Radius;
-		bool Stuck;
-		float Size;
-		glm::vec3 Pos;
-		glm::vec3 Velocity;
-		// Constructor
-		Particle(glm::vec3 pos, float radius, glm::vec3 velocity, bool stuck)
+		float radius;
+		float size;
+		int numberVertex, colMax, rowMax;
+		void setVertexAndIndices(float vertex[], unsigned int indices[])
 		{
-			Pos = pos;
-			Size = radius * 2;
-			Stuck = stuck;
-			Radius = radius;
-			Velocity = velocity;
-		}
-		;
-		// Moves the ball, keeping it constrained within the window bounds (except bottom edge); returns new position
-		glm::vec3 Move(float dt, int limit_width, int limit_height, int limit_z)
-		{
-
-			// If not stuck to player board
-			if (!this->Stuck)
+			float Pi = 3.1415926535f;
+			for (int j = 0; j <= rowMax; j++)
 			{
-				// Move the ball
-				Pos += Velocity * dt;
-				// Then check if outside window bounds and if so, reverse velocity and restore at correct position
-				if (Pos.x <= 0.0f)
+				for (int i = 0; i <= colMax; i++)
 				{
-					Velocity.x = -Velocity.x;
-					Pos.x = 0.0f;
+					int k = coordinate(i, j);
+					float teta = ((float) i / colMax) * 2 * Pi;
+					float fi = ((float) j / rowMax) * Pi;
+					vertex[k] = radius * (cos(teta)) * (sin(fi));
+					vertex[k + 1] = radius * (cos(fi));
+					vertex[k + 2] = 1.0f * (sin(teta)) * (sin(fi));
 				}
-				else if (Pos.x + Size >= limit_width)
-				{
-					this->Velocity.x = -this->Velocity.x;
-					this->Pos = limit_width - Size;
-				}
-//				if (this->Position.y <= 0.0f)
-//				{
-//					this->Velocity.y = -this->Velocity.y;
-//					this->Position.y = 0.0f;
-//				}
 			}
-			return Pos;
+
+			int k = 0;
+			for (int j = 0; j < rowMax; j++)
+			{
+				for (int i = 0; i < colMax; i++)
+				{
+					indices[k++] = coordinate(i, j);
+					indices[k++] = coordinate(i + 1, j + 1);
+					indices[k++] = coordinate(i, j + 1);
+					indices[k++] = coordinate(i, j);
+					indices[k++] = coordinate(i + 1, j);
+					indices[k++] = coordinate(i + 1, j + 1);
+				}
+			}
 		}
-		;
+
+		Particle(float r, int cMax, int rMax)
+		{
+			size = r * 2;
+			radius = r;
+			numberVertex = 3 * rMax * cMax;
+			colMax = cMax;
+			rowMax = rMax;
+
+		}
+		int coordinate(int i, int j)
+		{
+			return i + j * (colMax + 1);
+		}
+
+		int getNumberVertex() const
+		{
+			return numberVertex;
+		}
 };
 
-#endif
+#endif /* SRC_PARTICLE_H_ */
 

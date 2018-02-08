@@ -64,16 +64,16 @@ int main()
 	}
 
 	Shader cubesShader("src/cameraVS.vs", "src/cameraFS.fs");
-	float verticeLC = 0.8f;
-	float verticeBC = 2.5f;
-	Cube cube(verticeLC);
-	float verticesLC[cube.getDimV()];
-	unsigned int indicesLC[cube.getDimI()];
-	cube.setVertexAndIndices(verticeLC, indicesLC, verticesLC);
-
-	float verticesBC[cube.getDimV()];
-	unsigned int indicesBC[cube.getDimI()];
-	cube.setVertexAndIndices(verticeBC, indicesBC, verticesBC);
+//	Shader particleShader("src/particleFS.fs", "src/particleVs.vs");
+	float vertLC = 0.8f;
+	float vertBC = 2.5f;
+	Cube cube(vertLC);
+	float vertexLC[cube.getDimV()];
+	unsigned int indexLC[cube.getDimI()];
+	cube.setVertexAndIndices(vertLC, indexLC, vertexLC);
+	float vertexBC[cube.getDimV()];
+	unsigned int indexBC[cube.getDimI()];
+	cube.setVertexAndIndices(vertBC, indexBC, vertexBC);
 
 	unsigned int VBOlc, VAOlc, EBOlc, VBObc, VAObc, EBObc;
 
@@ -82,35 +82,49 @@ int main()
 	glGenBuffers(1, &EBOlc);
 	glBindVertexArray(VAOlc);
 	glBindBuffer(GL_ARRAY_BUFFER, VBOlc);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesLC), verticesLC, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexLC), vertexLC, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOlc);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesLC), indicesLC, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexLC), indexLC, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
 	glEnableVertexAttribArray(0);
 	// note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	cubesShader.use();
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
-	cubesShader.setMat4("projection", projection);
+//	glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f, 100.0f);
+//	cubesShader.setMat4("projection", projection);
 
 	glGenVertexArrays(1, &VAObc);
 	glGenBuffers(1, &VBObc);
 	glGenBuffers(1, &EBObc);
 	glBindVertexArray(VAObc);
 	glBindBuffer(GL_ARRAY_BUFFER, VBObc);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verticesBC), verticesBC, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBC), vertexBC, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBObc);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indicesBC), indicesBC, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexBC), indexBC, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
 	glEnableVertexAttribArray(0);
 
-	int numberParticles = 10;
+	unsigned int VBOpart, VAOpart, EBOpart;
+	float radius = 0.5;
+	Particle particella(radius, 30, 30);
+	float vertexPart[particella.getNumberVertex()];
+	unsigned int indexPart[particella.getNumberVertex()];
+	particella.setVertexAndIndices(vertexPart, indexPart);
 
-
-
-
-
+	glGenVertexArrays(1, &VAOpart);
+	glGenBuffers(1, &VBOpart);
+	glGenBuffers(1, &EBOpart);
+	glBindVertexArray(VAOpart);
+	glBindBuffer(GL_ARRAY_BUFFER, VBOpart);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPart), vertexPart, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOpart);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexPart), indexPart, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
+	glEnableVertexAttribArray(0);
+//	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//	particleShader.use();
+//	particleShader.setMat4("projection", projection);
 
 	while (!glfwWindowShouldClose(window))
 	{
@@ -129,7 +143,7 @@ int main()
 		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		// activate camerashader
+		// activate cubesShader
 		cubesShader.use();
 
 		// pass projection matrix to shader (note that in this case it could change every frame)
@@ -147,10 +161,17 @@ int main()
 		float angle = 0;
 		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 		cubesShader.setMat4("model", model);
-		glDrawElements(GL_LINES, 32, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_LINES, cube.getDimI(), GL_UNSIGNED_INT, 0);
 
 		glBindVertexArray(VAObc);
-		glDrawElements(GL_LINES, 32, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_LINES, cube.getDimI(), GL_UNSIGNED_INT, 0);
+
+//		particleShader.use();
+//		particleShader.setMat4("projection", projection);
+//		particleShader.setMat4("view", view);
+//		particleShader.setMat4("model", model);
+		glBindVertexArray(VAOpart);
+		glDrawElements(GL_TRIANGLES, particella.getNumberVertex(), GL_UNSIGNED_INT, 0);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -162,6 +183,8 @@ int main()
 	glDeleteBuffers(1, &VBOlc);
 	glDeleteVertexArrays(1, &VAObc);
 	glDeleteBuffers(1, &VBObc);
+	glDeleteVertexArrays(1, &VAOpart);
+	glDeleteBuffers(1, &VBOpart);
 
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
@@ -217,7 +240,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 			lastX = xpos;
 			lastY = ypos;
 			firstMouse = false;
-			moved=false;
+			moved = false;
 		}
 		float xoffset = xpos - lastX;
 		float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
