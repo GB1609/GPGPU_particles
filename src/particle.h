@@ -22,13 +22,13 @@ class Particle
 			float radiusNegative = radius * -1;
 			for (int i = 0; i <= lats; i++)
 			{
-				float lat0 = M_PI * (radius + (float) (i - 1) / lats);
-				float alpha1 = sin(lat0);
-				float theta1 = cos(lat0);
+				float lat0 = M_PI * (-0.5 + (float) (i - 1) / lats);
+				float alpha1 = sin(lat0) * radius;
+				float theta1 = cos(lat0) * radius;
 
-				float lat1 = M_PI * (radius + (float) i / lats);
-				float alpha2 = sin(lat1);
-				float theta2 = cos(lat1);
+				float lat1 = M_PI * (-0.5 + (float) i / lats);
+				float alpha2 = sin(lat1) * radius;
+				float theta2 = cos(lat1) * radius;
 
 				for (int j = 0; j <= longs; j++)
 				{
