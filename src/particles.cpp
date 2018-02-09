@@ -106,11 +106,10 @@ int main()
 	glEnableVertexAttribArray(0);
 
 	unsigned int VBOpart, VAOpart, EBOpart;
-	float radius = 1.0f;
-	Particle particella(radius, 50, 50);
+	float radius = 0.5f;
+	Particle particella(radius, 100, 100);
 	float vertexPart[particella.getNumberVertex()];
-	unsigned int indexPart[particella.getNumberVertex()];
-	particella.setVertexAndIndices(vertexPart, indexPart);
+	particella.setVertex(vertexPart);
 
 	glGenVertexArrays(1, &VAOpart);
 	glGenBuffers(1, &VBOpart);

@@ -16,47 +16,45 @@ class Particle
 		float radius;
 		float size;
 		int numberVertex, lats, longs;
-		void setVertexAndIndices(float vertex[], unsigned int indices[])
+		void setVertex(float vertex[])
 		{
-
-			int i, j;
-
 			int cont = 0;
-			for (i = 0; i <= lats; i++)
+			float radiusNegative = radius * -1;
+			for (int i = 0; i <= lats; i++)
 			{
-				double lat0 = M_PI * (-0.5 + (double) (i - 1) / lats);
-				double z0 = sin(lat0);
-				double zr0 = cos(lat0);
+				float lat0 = M_PI * (radius + (float) (i - 1) / lats);
+				float alpha1 = sin(lat0);
+				float theta1 = cos(lat0);
 
-				double lat1 = M_PI * (-0.5 + (double) i / lats);
-				double z1 = sin(lat1);
-				double zr1 = cos(lat1);
+				float lat1 = M_PI * (radius + (float) i / lats);
+				float alpha2 = sin(lat1);
+				float theta2 = cos(lat1);
 
-				for (j = 0; j <= longs; j++)
+				for (int j = 0; j <= longs; j++)
 				{
-					double lng = 2 * M_PI * (double) (j - 1) / longs;
-					double x = cos(lng);
-					double y = sin(lng);
+					float lng = 2 * M_PI * (float) (j - 1) / longs;
+					float x = cos(lng);
+					float y = sin(lng);
 
-					vertex[cont++] = x * zr0;
-					vertex[cont++] = y * zr0;
-					vertex[cont++] = z0;
-					vertex[cont++] = x * zr1;
-					vertex[cont++] = y * zr1;
-					vertex[cont++] = z1;
+					vertex[cont++] = x * theta1;
+					vertex[cont++] = y * theta1;
+					vertex[cont++] = alpha1;
+					vertex[cont++] = x * theta2;
+					vertex[cont++] = y * theta2;
+					vertex[cont++] = alpha2;
 
 				}
 			}
 
 		}
 
-		Particle(float r, int cMax, int rMax)
+		Particle(float r, int inLats, int inLongs)
 		{
 			size = r * 2;
 			radius = r;
-			numberVertex = 7 * rMax * cMax;
-			lats = cMax;
-			longs = rMax;
+			numberVertex = 6 * (inLongs + 1) * (inLats + 1);
+			lats = inLats;
+			longs = inLongs;
 		}
 		int coordinate(int i, int j)
 		{
