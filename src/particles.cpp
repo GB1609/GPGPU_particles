@@ -106,8 +106,8 @@ int main()
 	glEnableVertexAttribArray(0);
 
 	unsigned int VBOpart, VAOpart, EBOpart;
-	float radius = 0.5;
-	Particle particella(radius, 30, 30);
+	float radius = 1.0f;
+	Particle particella(radius, 50, 50);
 	float vertexPart[particella.getNumberVertex()];
 	unsigned int indexPart[particella.getNumberVertex()];
 	particella.setVertexAndIndices(vertexPart, indexPart);
@@ -118,10 +118,23 @@ int main()
 	glBindVertexArray(VAOpart);
 	glBindBuffer(GL_ARRAY_BUFFER, VBOpart);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPart), vertexPart, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOpart);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexPart), indexPart, GL_STATIC_DRAW);
+//	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOpart);
+//	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexPart), indexPart, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
 	glEnableVertexAttribArray(0);
+
+	int cont = 0;
+	for (int i = 0; i < particella.getNumberVertex(); i++)
+		if (cont == 2)
+		{
+			cout << vertexPart[i] << endl;
+			cont = 0;
+		}
+		else
+		{
+			cout << vertexPart[i] << "    -    ";
+			cont++;
+		}
 //	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 //	particleShader.use();
 //	particleShader.setMat4("projection", projection);
@@ -171,7 +184,7 @@ int main()
 //		particleShader.setMat4("view", view);
 //		particleShader.setMat4("model", model);
 		glBindVertexArray(VAOpart);
-		glDrawElements(GL_TRIANGLES, particella.getNumberVertex(), GL_UNSIGNED_INT, 0);
+		glDrawArrays( GL_TRIANGLES, 0, particella.getNumberVertex());
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();

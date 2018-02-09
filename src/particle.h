@@ -15,50 +15,52 @@ class Particle
 	public:
 		float radius;
 		float size;
-		int numberVertex, colMax, rowMax;
+		int numberVertex, lats, longs;
 		void setVertexAndIndices(float vertex[], unsigned int indices[])
 		{
-			float Pi = 3.1415926535f;
-			for (int j = 0; j <= rowMax; j++)
+
+			int i, j;
+
+			int cont = 0;
+			for (i = 0; i <= lats; i++)
 			{
-				for (int i = 0; i <= colMax; i++)
+				double lat0 = M_PI * (-0.5 + (double) (i - 1) / lats);
+				double z0 = sin(lat0);
+				double zr0 = cos(lat0);
+
+				double lat1 = M_PI * (-0.5 + (double) i / lats);
+				double z1 = sin(lat1);
+				double zr1 = cos(lat1);
+
+				for (j = 0; j <= longs; j++)
 				{
-					int k = coordinate(i, j);
-					float teta = ((float) i / colMax) * 2 * Pi;
-					float fi = ((float) j / rowMax) * Pi;
-					vertex[k] = radius * (cos(teta)) * (sin(fi));
-					vertex[k + 1] = radius * (cos(fi));
-					vertex[k + 2] = 1.0f * (sin(teta)) * (sin(fi));
+					double lng = 2 * M_PI * (double) (j - 1) / longs;
+					double x = cos(lng);
+					double y = sin(lng);
+
+					vertex[cont++] = x * zr0;
+					vertex[cont++] = y * zr0;
+					vertex[cont++] = z0;
+					vertex[cont++] = x * zr1;
+					vertex[cont++] = y * zr1;
+					vertex[cont++] = z1;
+
 				}
 			}
 
-			int k = 0;
-			for (int j = 0; j < rowMax; j++)
-			{
-				for (int i = 0; i < colMax; i++)
-				{
-					indices[k++] = coordinate(i, j);
-					indices[k++] = coordinate(i + 1, j + 1);
-					indices[k++] = coordinate(i, j + 1);
-					indices[k++] = coordinate(i, j);
-					indices[k++] = coordinate(i + 1, j);
-					indices[k++] = coordinate(i + 1, j + 1);
-				}
-			}
 		}
 
 		Particle(float r, int cMax, int rMax)
 		{
 			size = r * 2;
 			radius = r;
-			numberVertex = 3 * rMax * cMax;
-			colMax = cMax;
-			rowMax = rMax;
-
+			numberVertex = 7 * rMax * cMax;
+			lats = cMax;
+			longs = rMax;
 		}
 		int coordinate(int i, int j)
 		{
-			return i + j * (colMax + 1);
+			return i + j * (lats + 1);
 		}
 
 		int getNumberVertex() const
