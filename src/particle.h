@@ -9,6 +9,8 @@
 #define SRC_PARTICLE_H_
 
 #include <glm/glm.hpp>
+#include <vector>
+using namespace std;
 
 class Particle
 {
@@ -16,11 +18,11 @@ class Particle
 		float radius;
 		float size;
 		int numberVertex, lats, longs;
-		glm::vec3 position;
+		vector<glm::vec3> positions;
 	public:
-		void setPosition(float a, float b, float c)
+		void addPosition(float a, float b, float c)
 		{
-			position = glm::vec3(a, b, c);
+			positions.push_back(glm::vec3(a, b, c));
 		}
 		void setVertex(float vertex[])
 		{
@@ -70,6 +72,15 @@ class Particle
 		int getNumberVertex() const
 		{
 			return numberVertex;
+		}
+
+		const glm::vec3& getPosition(int i) const
+		{
+			return positions[i];
+		}
+		const glm::vec3 getPositionI(int i) const
+		{
+			return glm::vec3(positions[i].x * -1, positions[i].y * -1, positions[i].z * -1);
 		}
 };
 

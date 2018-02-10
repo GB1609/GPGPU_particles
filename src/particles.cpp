@@ -6,18 +6,19 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#include <vector>
+#include <stdlib.h>
+#include <time.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include "../lib/stb_image.h"
 #include "cube.h"
 #include "particle.h"
-using namespace std;
 using namespace glm;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
+float generateRandomCoord(float);
 
 // settings
 const unsigned int SCR_WIDTH = 1000;
@@ -42,9 +43,7 @@ int precisionSphere = 60;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 float currentFrame;
-
-int numberParticles = 10;
-vector<Particle> particles;
+int numberParticles = 200;
 int main()
 {
 	glfwInit();
@@ -81,7 +80,6 @@ int main()
 	cube.setVertexAndIndices(vertBC, indexBC, vertexBC);
 
 	unsigned int VBOlc, VAOlc, EBOlc, VBObc, VAObc, EBObc;
-
 	glGenVertexArrays(1, &VAOlc);
 	glGenBuffers(1, &VBOlc);
 	glGenBuffers(1, &EBOlc);
@@ -109,16 +107,15 @@ int main()
 	glEnableVertexAttribArray(0);
 
 	unsigned int VBOpart, VAOpart, EBOpart;
-	float xCoord = -0.6f, yCoord = -0.6f, zCoord = -0.6f;
+	Particle particle(radius, precisionSphere, precisionSphere);
+	float vertexPart[particle.getNumberVertex()];
+	particle.setVertex(vertexPart);
 	for (int i = 0; i < numberParticles; i++)
 	{
-		Particle p(radius, precisionSphere, precisionSphere);
-		p.setPosition(xCoord, yCoord, zCoord);
-		xCoord += 0.03f;
-		particles.push_back(p);
+		particle.addPosition(generateRandomCoord(vertLC), generateRandomCoord(vertLC), generateRandomCoord(vertLC));
 	}
-	float vertexPart[particles[0].getNumberVertex()];
-	particles[0].setVertex(vertexPart);
+
+
 
 //	particleShader.use();
 	glGenVertexArrays(1, &VAOpart);
@@ -152,9 +149,9 @@ int main()
 
 		glBindVertexArray(VAOlc);
 		glm::mat4 model;
-		model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+		model = glm::translate(model, cube.getPosition());
 		float angle = 0;
-		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+//		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 		cubesShader.setMat4("model", model);
 		glDrawElements(GL_LINES, cube.getDimI(), GL_UNSIGNED_INT, 0);
 
@@ -168,12 +165,12 @@ int main()
 		glBindVertexArray(VAOpart);
 		for (int i = 0; i < numberParticles; i++)
 		{
-
-			model = glm::translate(model, particles[i].getPosition());
-			float angle = 20.0f * (i % 3 == 0 ? glfwGetTime() : i);
-//			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+			model = glm::translate(model, particle.getPosition(i));
+//			float angle = 20.0f * (i % 3 == 0 ? glfwGetTime() : i);
+//			model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f)); //per farli muovere
 			cubesShader.setMat4("model", model);
-			glDrawArrays( GL_TRIANGLES, 0, particles[0].getNumberVertex());
+			glDrawArrays( GL_TRIANGLES, 0, particle.getNumberVertex());
+			model = glm::translate(model, particle.getPositionI(i));
 		}
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -273,4 +270,11 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 		fov = 1.0f;
 	if (fov >= 45.0f)
 		fov = 45.0f;
+}
+float generateRandomCoord(float verticeCuboL)
+{
+	float randomCoord = static_cast<float>(rand()) / (static_cast<float>(RAND_MAX / verticeCuboL));
+	if (rand() % 2 == 0)
+		randomCoord *= -1;
+	return randomCoord;
 }

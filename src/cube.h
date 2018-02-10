@@ -11,6 +11,7 @@
 class Cube
 {
 	private:
+		glm::vec3 position;
 		float vertice;
 		unsigned int dimV;
 		unsigned int dimI;
@@ -20,6 +21,7 @@ class Cube
 			vertice = vertex;
 			dimV=24;
 			dimI=32;
+			position = glm::vec3(0.0f, 0.0f, 0.0f);
 		}
 		void setVertexAndIndices(float vertice, unsigned int indices[], float vertices[])
 		{
@@ -53,6 +55,11 @@ class Cube
 		unsigned int getDimV() const
 		{
 			return dimV;
+		}
+
+		const glm::vec3& getPosition() const
+		{
+			return position;
 		}
 };
 
