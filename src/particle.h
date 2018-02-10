@@ -12,10 +12,16 @@
 
 class Particle
 {
-	public:
+	private:
 		float radius;
 		float size;
 		int numberVertex, lats, longs;
+		glm::vec3 position;
+	public:
+		void setPosition(float a, float b, float c)
+		{
+			position = glm::vec3(a, b, c);
+		}
 		void setVertex(float vertex[])
 		{
 			int cont = 0;
