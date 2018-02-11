@@ -35,7 +35,7 @@ glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 glm::vec3 lightPos = glm::vec3(0.0f, 0.0f, 10.0f);
 glm::vec3 lightDirection = glm::vec3(0.0f, 0.0f, -1.0f);
-float phi = 5.0f;
+float phi = glm::cos(glm::radians(12.5f));
 float theta = dot(lightPos, lightDirection);
 
 bool firstMouse = true;
@@ -52,7 +52,7 @@ int precisionSphere = 100;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 float currentFrame;
-int numberParticles = 50;
+int numberParticles = 100;
 bool beginShow = false;
 int main()
 {
@@ -78,7 +78,7 @@ int main()
 		return -1;
 	}
 
-//	Shader lighShader("src/lightShader.vs", "src/lightShader.fs");
+	Shader lightShader("src/lightShader.vs", "src/lightShader.fs");
 	Shader cubesShader("src/cameraVS.vs", "src/cameraFS.fs");
 	Shader particleShader("src/particleVS.vs", "src/particleFS.fs");
 
@@ -143,7 +143,14 @@ int main()
 //	glBufferData(GL_ARRAY_BUFFER, sizeof(lightPos), lightPos, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
 	glEnableVertexAttribArray(0);
-	float aaaaaa = 1.3f;
+
+	lightShader.use();
+	lightShader.setInt("material.diffuse", 0);
+	lightShader.setInt("material.specular", 1);
+
+	// material properties
+	lightShader.setFloat("material.shininess", 32.0f);
+
 	while (!glfwWindowShouldClose(window))
 	{
 		currentFrame = glfwGetTime();
@@ -157,19 +164,53 @@ int main()
 
 		cubesShader.use();
 		glm::mat4 model;
-		glm::mat4 projection = glm::perspective(glm::radians(fov), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f,
-				100.0f);
-		cubesShader.setMat4("projection", projection);
+//		glm::mat4 projectionProspective = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
+		glm::mat4 projectionProspective = glm::perspective(glm::radians(fov), (float) SCR_WIDTH / (float) SCR_HEIGHT,
+				0.1f, 100.0f);
+
+		cubesShader.setMat4("projection", projectionProspective);
 
 		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		cubesShader.setMat4("view", view);
 
 		drawCubes(model, VAObc, VAOlc, cubesShader, cube);
 		particleShader.use();
-		particleShader.setMat4("projection", projection);
+		particleShader.setMat4("projection", projectionProspective);
 		particleShader.setMat4("view", view);
 		particleShader.setMat4("model", model);
 		drawParticles(model, VAOpart, particleShader, particle);
+
+		// be sure to activate shader when setting uniforms/drawing objects
+		lightShader.use();
+		lightShader.setVec3("light.position", lightPos);
+		lightShader.setVec3("light.direction", lightDirection);
+		lightShader.setFloat("light.cutOff", glm::cos(glm::radians(12.5f)));
+		lightShader.setVec3("viewPos", lightDirection);
+
+		// light properties
+		lightShader.setVec3("light.ambient", 0.1f, 0.1f, 0.1f);
+		// we configure the diffuse intensity slightly higher; the right lighting conditions differ with each lighting method and environment.
+		// each environment and lighting type requires some tweaking to get the best out of your environment.
+		lightShader.setVec3("light.diffuse", 0.8f, 0.8f, 0.8f);
+		lightShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+		lightShader.setFloat("light.constant", 1.0f);
+		lightShader.setFloat("light.linear", 0.09f);
+		lightShader.setFloat("light.quadratic", 0.032f);
+		// view/projection transformations
+		lightShader.setMat4("projection", projectionProspective);
+		lightShader.setMat4("view", view);
+
+		// world transformation
+		model = glm::translate(model, cameraPos);
+		lightShader.setMat4("model", model);
+
+//			        // bind diffuse map
+//			        glActiveTexture(GL_TEXTURE0);
+//			        glBindTexture(GL_TEXTURE_2D, diffuseMap);
+//			        // bind specular map
+//			        glActiveTexture(GL_TEXTURE1);
+//			        glBindTexture(GL_TEXTURE_2D, specularMap);
+
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

@@ -105,7 +105,7 @@ class Particle
 						if ((value < maxDimension) && (value > (inverseMax)))
 						{
 							positions[i].x = value;
-							positionsInverse[i].x = -positions[i].x;
+							positionsInverse[i].x = -value;
 						}
 						break;
 					case 1:
@@ -113,7 +113,7 @@ class Particle
 						if ((value < maxDimension) && (value > (inverseMax)))
 						{
 							positions[i].y = value;
-							positionsInverse[i].y = -positions[i].y;
+							positionsInverse[i].y = -value;
 						}
 						break;
 					case 2:
@@ -121,7 +121,7 @@ class Particle
 						if ((value < maxDimension) && (value > (inverseMax)))
 						{
 							positions[i].z = value;
-							positionsInverse[i].z = -positions[i].z;
+							positionsInverse[i].z = -value;
 						}
 						break;
 					default:
