@@ -87,12 +87,10 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, VBOlc);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexLC), vertexLC, GL_STATIC_DRAW);
 	glBindVertexArray(VAOlc);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) 0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (3 * sizeof(float)));
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*) (3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) (6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
 	///////////////////////////////littleCUBE//////////////////////
 	///////////////////////////////////////////bigCUBE///////////////////////////////
 	float vertexBC[cube.getDimV()];
@@ -131,19 +129,10 @@ int main()
 	Shader lightingShader("src/lightShader.vs", "src/lightShader.fs");
 	Shader cubesShader("src/cameraVS.vs", "src/cameraFS.fs");
 	Shader particleShader("src/particleVS.vs", "src/particleFS.fs");
-	unsigned int lightVAO;
-	glGenVertexArrays(1, &lightVAO);
-	glBindVertexArray(lightVAO);
-	glBindBuffer(GL_ARRAY_BUFFER, VBOlc);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*) 0);
-	glEnableVertexAttribArray(0);
-	unsigned int diffuseMap = loadTexture("texture/illuminate.png");
-	unsigned int specularMap = loadTexture("texture/shadow.png");
-	lightingShader.use();
-	lightingShader.setFloat("material.diffuse", 0);
-	lightingShader.setFloat("material.specular", 1);
 	////////////////////////////SHDAERS//////////////////////////////
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	while (!glfwWindowShouldClose(window))
 	{
 		currentFrame = glfwGetTime();
@@ -162,13 +151,13 @@ int main()
 		lightingShader.setVec3("light.ambient", 0.1f, 0.1f, 0.1f);
 		lightingShader.setVec3("light.diffuse", 0.7f, 0.7f, 0.7f);
 		lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
-		lightingShader.setFloat("light.constant", 0.8f);
+		lightingShader.setFloat("light.constant", 1.0f);
 		lightingShader.setFloat("light.linear", 0.1f);
 		lightingShader.setFloat("light.quadratic", 0.032f);
 		lightingShader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
 		lightingShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
-		lightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
-		lightingShader.setFloat("material.shininess", 10.0f);
+		lightingShader.setVec3("material.specular", 1.0f, 0.5f, 0.5f);
+		lightingShader.setFloat("material.shininess", 20.0f);
 
 		//glm::mat4 projectionProspective = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
 		// view/projection transformations
@@ -217,8 +206,6 @@ int main()
 		for (int i = 0; i < numberParticles; i++)
 		{
 			model = glm::translate(model, particle.getPosition(i));
-			//		float angle = 20.0f * (i % 3 == 0 ? glfwGetTime() : i);
-			//		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f)); //per farli muovere
 			particleShader.setMat4("model", model);
 			glDrawArrays( GL_TRIANGLES, 0, particle.getNumberVertex());
 

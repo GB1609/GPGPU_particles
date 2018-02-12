@@ -20,7 +20,7 @@ class Cube
 		{
 			dimV = 24;
 			dimI = 32;
-			numbDetails = 288;
+			numbDetails = 6 * 6 * 6;
 			position = glm::vec3(0.0f, 0.0f, 0.0f);
 		}
 		Cube(float vertex)
@@ -28,7 +28,7 @@ class Cube
 //			vertice = vertex;
 			dimV = 24;
 			dimI = 32;
-			numbDetails = 288;
+			numbDetails = 144;
 			position = glm::vec3(0.0f, 0.0f, 0.0f);
 		}
 		void setVertexAndIndices(float vertice, unsigned int indices[], float vertices[])
@@ -60,35 +60,31 @@ class Cube
 		void setVertex(float vertice, float vertices[])
 		{
 			float temp[numbDetails] =
-			{ -vertice, -vertice, -vertice, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, vertice, vertice, -vertice, 0.0f, 0.0f,
-					-1.0f, 1.0f, 0.0f, vertice, vertice, -vertice, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, vertice, vertice,
-					-vertice, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, -vertice, vertice, -vertice, 0.0f, 0.0f, -1.0f, 0.0f, 1.0f,
-					-vertice, -vertice, -vertice, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -vertice, -vertice, vertice, 0.0f,
+			{
 
-					0.0f, 1.0f, 0.0f, 0.0f, vertice, -vertice, vertice, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f, vertice, vertice,
-					vertice, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, vertice, vertice, vertice, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f,
-					-vertice, vertice, vertice, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, -vertice, -vertice, vertice, 0.0f, 0.0f,
-					1.0f, 0.0f, 0.0f,
+			-vertice, -vertice, -vertice, 0.0f, 0.0f, -1.0f, vertice, -vertice, -vertice, 0.0f, 0.0f, -1.0f, vertice,
+					vertice, -vertice, 0.0f, 0.0f, -1.0f, vertice, vertice, -vertice, 0.0f, 0.0f, -1.0f, -vertice,
+					vertice, -vertice, 0.0f, 0.0f, -1.0f, -vertice, -vertice, -vertice, 0.0f, 0.0f, -1.0f,
 
-					-vertice, vertice, vertice, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f, -vertice, vertice, -vertice, -1.0f, 0.0f,
-					0.0f, 1.0f, 1.0f, -vertice, -vertice, -vertice, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, -vertice, -vertice,
-					-vertice, -1.0f, 0.0f, 0.0f, 0.0f, 1.0f, -vertice, -vertice, vertice, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-					-vertice, vertice, vertice, -1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+					-vertice, -vertice, vertice, 0.0f, 0.0f, 1.0f, vertice, -vertice, vertice, 0.0f, 0.0f, 1.0f,
+					vertice, vertice, vertice, 0.0f, 0.0f, 1.0f, vertice, vertice, vertice, 0.0f, 0.0f, 1.0f, -vertice,
+					vertice, vertice, 0.0f, 0.0f, 1.0f, -vertice, -vertice, vertice, 0.0f, 0.0f, 1.0f,
 
-					vertice, vertice, vertice, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, vertice, vertice, -vertice, 1.0f, 0.0f,
-					0.0f, 1.0f, 1.0f, vertice, -vertice, -vertice, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, vertice, -vertice,
-					-vertice, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, vertice, -vertice, vertice, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-					vertice, vertice, vertice, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+					-vertice, vertice, vertice, -1.0f, 0.0f, 0.0f, -vertice, vertice, -vertice, -1.0f, 0.0f, 0.0f,
+					-vertice, -vertice, -vertice, -1.0f, 0.0f, 0.0f, -vertice, -vertice, -vertice, -1.0f, 0.0f, 0.0f,
+					-vertice, -vertice, vertice, -1.0f, 0.0f, 0.0f, -vertice, vertice, vertice, -1.0f, 0.0f, 0.0f,
 
-					-vertice, -vertice, -vertice, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f, vertice, -vertice, -vertice, 0.0f,
-					-1.0f, 0.0f, 1.0f, 1.0f, vertice, -vertice, vertice, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, vertice,
-					-vertice, vertice, 0.0f, -1.0f, 0.0f, 1.0f, 0.0f, -vertice, -vertice, vertice, 0.0f, -1.0f, 0.0f,
-					0.0f, 0.0f, -vertice, -vertice, -vertice, 0.0f, -1.0f, 0.0f, 0.0f, 1.0f,
+					vertice, vertice, vertice, 1.0f, 0.0f, 0.0f, vertice, vertice, -vertice, 1.0f, 0.0f, 0.0f, vertice,
+					-vertice, -vertice, 1.0f, 0.0f, 0.0f, vertice, -vertice, -vertice, 1.0f, 0.0f, 0.0f, vertice,
+					-vertice, vertice, 1.0f, 0.0f, 0.0f, vertice, vertice, vertice, 1.0f, 0.0f, 0.0f,
 
-					-vertice, vertice, -vertice, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, vertice, vertice, -vertice, 0.0f, 1.0f,
-					0.0f, 1.0f, 1.0f, vertice, vertice, vertice, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, vertice, vertice,
-					vertice, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, -vertice, vertice, vertice, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-					-vertice, vertice, -vertice, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f };
+					-vertice, -vertice, -vertice, 0.0f, -1.0f, 0.0f, vertice, -vertice, -vertice, 0.0f, -1.0f, 0.0f,
+					vertice, -vertice, vertice, 0.0f, -1.0f, 0.0f, vertice, -vertice, vertice, 0.0f, -1.0f, 0.0f,
+					-vertice, -vertice, vertice, 0.0f, -1.0f, 0.0f, -vertice, -vertice, -vertice, 0.0f, -1.0f, 0.0f,
+
+					-vertice, vertice, -vertice, 0.0f, 1.0f, 0.0f, vertice, vertice, -vertice, 0.0f, 1.0f, 0.0f,
+					vertice, vertice, vertice, 0.0f, 1.0f, 0.0f, vertice, vertice, vertice, 0.0f, 1.0f, 0.0f, -vertice,
+					vertice, vertice, 0.0f, 1.0f, 0.0f, -vertice, vertice, -vertice, 0.0f, 1.0f, 0.0f, };
 
 			for (int i = 0; i < numbDetails; i++)
 				vertices[i] = temp[i];
@@ -109,7 +105,7 @@ class Cube
 		}
 		unsigned int getCubePrint()
 		{
-			return numbDetails / 8;
+			return 3 * 2 * 6;
 		}
 
 		unsigned int getNumbDetails() const
