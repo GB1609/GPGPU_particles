@@ -20,7 +20,6 @@ const float SPEED = 1.8f;
 const float SENSITIVTY = 0.1f;
 const float ZOOM = 45.0f;
 
-
 // An abstract camera class that processes input and calculates the corresponding Eular Angles, Vectors and Matrices for use in OpenGL
 class Camera
 {
@@ -125,6 +124,16 @@ class Camera
 			// Also re-calculate the Right and Up vector
 			Right = glm::normalize(glm::cross(Front, WorldUp)); // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
 			Up = glm::normalize(glm::cross(Right, Front));
+		}
+		void resetVisual()
+		{
+			Position = glm::vec3(7.6f, 0.003f, 13.0f);
+			Front = glm::vec3(-0.50f, -0.04f, -0.87f);
+			WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
+			Yaw = YAW;
+			Pitch = PITCH;
+			updateCameraVectors();
+
 		}
 };
 #endif

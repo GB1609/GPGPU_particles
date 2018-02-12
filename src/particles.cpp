@@ -31,10 +31,11 @@ glm::vec3 cameraPos = glm::vec3(7.6f, 0.003f, 13.0f);
 glm::vec3 cameraFront = glm::vec3(-0.50f, -0.04f, -0.87f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
-
 glm::vec3 lightPos = glm::vec3(0.0f, 0.0f, 10.0f);
 glm::vec3 lightDirection = glm::vec3(0.0f, 0.0f, -1.0f);
-
+glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+glm::vec3 cubeColor = glm::vec3(0.8f, 0.8f, 0.8f);
+glm::vec3 particleColor = glm::vec3(1.0f, 0.9f, 0.0f);
 
 bool firstMouse = true;
 bool moved = false;
@@ -45,8 +46,8 @@ float lastY = 600.0 / 2.0;
 float fov = 45.0f;
 float vertLC = 0.8f;
 float vertBC = 2.5f;
-float radius = 0.02f;
-int precisionSphere = 125;
+float radius = 0.03f;
+int precisionSphere = 225;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 float currentFrame;
@@ -123,13 +124,16 @@ int main()
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPart), vertexPart, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
 	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
+	glEnableVertexAttribArray(1);
 	//////////////////////////PARTICLES////////////////////////////////////////
 	////////////////////////SHADERS////////////////////////////////////
 	Shader lightingShader("src/lightShader.vs", "src/lightShader.fs");
 	Shader cubesShader("src/cameraVS.vs", "src/cameraFS.fs");
-	Shader particleShader("src/particleVS.vs", "src/particleFS.fs");
 	////////////////////////////SHDAERS//////////////////////////////
+//	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_ALWAYS);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	while (!glfwWindowShouldClose(window))
@@ -144,32 +148,29 @@ int main()
 		lightingShader.use();
 		lightingShader.setVec3("light.position", lightPos);
 		lightingShader.setVec3("light.direction", lightDirection);
-		lightingShader.setFloat("light.cutOff", glm::cos(glm::radians(3.0f)));
-		lightingShader.setFloat("light.outerCutOff", glm::cos(glm::radians(5.5f)));
+		lightingShader.setFloat("light.cutOff", glm::cos(glm::radians(8.5f)));
+		lightingShader.setFloat("light.outerCutOff", glm::cos(glm::radians(30.5f)));
 		lightingShader.setVec3("viewPos", lightPos);
-		lightingShader.setVec3("light.ambient", 0.1f, 0.1f, 0.1f);
-		lightingShader.setVec3("light.diffuse", 0.7f, 0.7f, 0.7f);
-		lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+		lightingShader.setVec3("light.ambient", lightColor * 0.1f);
+		lightingShader.setVec3("light.diffuse", lightColor * 0.8f);
+		lightingShader.setVec3("light.specular", lightColor);
 		lightingShader.setFloat("light.constant", 1.0f);
 		lightingShader.setFloat("light.linear", 0.1f);
-		lightingShader.setFloat("light.quadratic", 0.032f);
-		lightingShader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
-		lightingShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
-		lightingShader.setVec3("material.specular", 1.0f, 0.5f, 0.5f);
-		lightingShader.setFloat("material.shininess", 20.0f);
+		lightingShader.setFloat("light.quadratic", 0.035f);
+		lightingShader.setFloat("material.alpha", 0.4f);
+		lightingShader.setVec3("material.ambient", (cubeColor * 0.8f));
+		lightingShader.setVec3("material.diffuse", (cubeColor * 0.9f));
+		lightingShader.setVec3("material.specular", cubeColor);
+		lightingShader.setFloat("material.shininess", 50.0f);
 
 		//glm::mat4 projectionProspective = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
-		// view/projection transformations
 		glm::mat4 projectionL = glm::perspective(glm::radians(fov), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f,
 				100.0f);
 		glm::mat4 viewL = cam.GetViewMatrix();
 		lightingShader.setMat4("projection", projectionL);
 		lightingShader.setMat4("view", viewL);
-
-		// world transformation
 		glm::mat4 modelL;
 		lightingShader.setMat4("model", modelL);
-
 
 		glBindVertexArray(VAOlc);
 		modelL = glm::translate(modelL, cube.getPosition());
@@ -178,40 +179,37 @@ int main()
 		lightingShader.setMat4("model", modelL);
 		glDrawArrays(GL_TRIANGLES, 0, cube.getCubePrint());
 
+		lightingShader.setVec3("material.ambient", (particleColor * 0.8f));
+		lightingShader.setVec3("material.diffuse", (particleColor * 0.9f));
+		lightingShader.setVec3("material.specular", particleColor);
+		lightingShader.setFloat("material.shininess", 40.0f);
+		lightingShader.setFloat("material.alpha", 1.0f);
+		glBindVertexArray(VAOpart);
+		for (int i = 0; i < numberParticles; i++)
+		{
+			modelL = glm::translate(modelL, particle.getPosition(i));
+			lightingShader.setMat4("model", modelL);
+			glDrawArrays( GL_TRIANGLES, 0, particle.getNumberVertex());
+
+			modelL = glm::translate(modelL, particle.getPositionInverse(i));
+			if (beginShow)
+				particle.update(vertBC);
+		}
+
 		cubesShader.use();
 		glm::mat4 model;
 		//		glm::mat4 projectionProspective = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
 		glm::mat4 projectionProspective = glm::perspective(glm::radians(fov), (float) SCR_WIDTH / (float) SCR_HEIGHT,
 				0.1f, 100.0f);
-
 		cubesShader.setMat4("projection", projectionProspective);
-
 		glm::mat4 view = cam.GetViewMatrix();
 		cubesShader.setMat4("view", view);
-
 		model = glm::translate(model, cube.getPosition());
 		float angle = 0;
 		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 		cubesShader.setMat4("model", model);
 		glBindVertexArray(VAObc);
 		glDrawElements(GL_LINES, cube.getDimI(), GL_UNSIGNED_INT, 0);
-
-		particleShader.use();
-		particleShader.setMat4("projection", projectionProspective);
-		particleShader.setMat4("view", view);
-		particleShader.setMat4("model", model);
-
-		glBindVertexArray(VAOpart);
-		for (int i = 0; i < numberParticles; i++)
-		{
-			model = glm::translate(model, particle.getPosition(i));
-			particleShader.setMat4("model", model);
-			glDrawArrays( GL_TRIANGLES, 0, particle.getNumberVertex());
-
-			model = glm::translate(model, particle.getPositionInverse(i));
-			if (beginShow)
-				particle.update(vertBC);
-		}
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -236,10 +234,7 @@ void processInput(GLFWwindow *window, Particle& particella)
 
 	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
 	{
-		cout << "entro" << endl;
-		cam.Position = glm::vec3(7.6f, 0.003f, 13.0f);
-		cam.Front = glm::vec3(-0.50f, -0.04f, -0.87f);
-		cam.updateCameraVectors();
+		cam.resetVisual();
 		moved = true;
 	}
 
@@ -284,6 +279,8 @@ void processInput(GLFWwindow *window, Particle& particella)
 }
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
+	{
 	if (firstMouse || moved)
 	{
 		lastX = xpos;
@@ -299,6 +296,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 	lastY = ypos;
 
 	cam.ProcessMouseMovement(xoffset, yoffset);
+	}
 }
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
