@@ -14,9 +14,9 @@ enum Camera_Movement
 };
 
 // Default camera values
-const float YAW = -90.0f;
+const float YAW = -120.0f;
 const float PITCH = 0.0f;
-const float SPEED = 2.5f;
+const float SPEED = 1.8f;
 const float SENSITIVTY = 0.1f;
 const float ZOOM = 45.0f;
 
@@ -40,12 +40,12 @@ class Camera
 		float Zoom;
 
 		// Constructor with vectors
-		Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw =
-				YAW, float pitch = PITCH) :
-				Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
+		Camera(glm::vec3 position, glm::vec3 up, glm::vec3 front, float yaw = YAW, float pitch = PITCH) :
+				MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
 		{
 			Position = position;
 			WorldUp = up;
+			Front = front;
 			Yaw = yaw;
 			Pitch = pitch;
 			updateCameraVectors();
@@ -113,8 +113,6 @@ class Camera
 			if (Zoom >= 45.0f)
 				Zoom = 45.0f;
 		}
-
-	private:
 		// Calculates the front vector from the Camera's (updated) Eular Angles
 		void updateCameraVectors()
 		{

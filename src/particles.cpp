@@ -12,13 +12,13 @@
 #include "../lib/stb_image.h"
 #include "cube.h"
 #include "particle.h"
+#include "camera.h"
 
 using namespace glm;
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
-unsigned int loadTexture(const char * path);
 void processInput(GLFWwindow *window, Particle& particle);
 float generateRandomCoord(float);
 
@@ -31,16 +31,15 @@ glm::vec3 cameraPos = glm::vec3(7.6f, 0.003f, 13.0f);
 glm::vec3 cameraFront = glm::vec3(-0.50f, -0.04f, -0.87f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
+
 glm::vec3 lightPos = glm::vec3(0.0f, 0.0f, 10.0f);
 glm::vec3 lightDirection = glm::vec3(0.0f, 0.0f, -1.0f);
 
-glm::vec3 lightColor(1.0f, 1.0f, 0.8f);
-glm::vec3 objectColor(0.9f, 0.9f, 0.8f);
 
 bool firstMouse = true;
 bool moved = false;
-float yawCamera = -90.0f;
-float pitchCamera = 0.0f;
+
+Camera cam(cameraPos, cameraUp, cameraFront);
 float lastX = 800.0f / 2.0;
 float lastY = 600.0 / 2.0;
 float fov = 45.0f;
@@ -163,7 +162,7 @@ int main()
 		// view/projection transformations
 		glm::mat4 projectionL = glm::perspective(glm::radians(fov), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f,
 				100.0f);
-		glm::mat4 viewL = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		glm::mat4 viewL = cam.GetViewMatrix();
 		lightingShader.setMat4("projection", projectionL);
 		lightingShader.setMat4("view", viewL);
 
@@ -187,7 +186,7 @@ int main()
 
 		cubesShader.setMat4("projection", projectionProspective);
 
-		glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+		glm::mat4 view = cam.GetViewMatrix();
 		cubesShader.setMat4("view", view);
 
 		model = glm::translate(model, cube.getPosition());
@@ -237,9 +236,10 @@ void processInput(GLFWwindow *window, Particle& particella)
 
 	if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
 	{
-		cameraPos = glm::vec3(7.6f, 0.003f, 13.0f);
-		cameraFront = glm::vec3(-0.50f, -0.04f, -0.87f);
-		cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+		cout << "entro" << endl;
+		cam.Position = glm::vec3(7.6f, 0.003f, 13.0f);
+		cam.Front = glm::vec3(-0.50f, -0.04f, -0.87f);
+		cam.updateCameraVectors();
 		moved = true;
 	}
 
@@ -254,79 +254,55 @@ void processInput(GLFWwindow *window, Particle& particella)
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
 		beginShow = false;
 
-	float cameraSpeed = 1.8f * deltaTime;
+	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
+	{
+		cout << cam.Position.x << "/" << cam.Position.y << "/" << cam.Position.z << endl;
+		cout << cam.Front.x << "/" << cam.Front.y << "/" << cam.Front.z << endl;
+		cout << cam.Up.x << "/" << cam.Up.y << "/" << cam.Up.z << endl;
+	}
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
 	{
-		cameraPos += cameraSpeed * cameraFront;
+		cam.ProcessKeyboard(FORWARD, deltaTime);
 		moved = true;
 	}
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
 	{
-		cameraPos -= cameraSpeed * cameraFront;
+		cam.ProcessKeyboard(BACKWARD, deltaTime);
 		moved = true;
 	}
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
 	{
-		cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		cam.ProcessKeyboard(LEFT, deltaTime);
 		moved = true;
 	}
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
 	{
-		cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		cam.ProcessKeyboard(RIGHT, deltaTime);
 		moved = true;
-	}
-	if (glfwGetKey(window, GLFW_KEY_H) == GLFW_PRESS)
-	{
-		cout << cameraPos.x << "/" << cameraPos.y << "/" << cameraPos.z << endl;
-		cout << cameraFront.x << "/" << cameraFront.y << "/" << cameraFront.z << endl;
-		cout << cameraUp.x << "/" << cameraUp.y << "/" << cameraUp.z << endl;
 	}
 
 }
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_1) == GLFW_PRESS)
+	if (firstMouse || moved)
 	{
-		if (firstMouse || moved)
-		{
-			lastX = xpos;
-			lastY = ypos;
-			firstMouse = false;
-			moved = false;
-		}
-		float xoffset = xpos - lastX;
-		float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
 		lastX = xpos;
 		lastY = ypos;
-
-		float sensitivity = 0.3f; // change this value to your liking
-		xoffset *= sensitivity;
-		yoffset *= sensitivity;
-
-		yawCamera += xoffset;
-		pitchCamera += yoffset;
-
-		// make sure that when pitch is out of bounds, screen doesn't get flipped
-		if (pitchCamera > 89.0f)
-			pitchCamera = 89.0f;
-		if (pitchCamera < -89.0f)
-			pitchCamera = -89.0f;
-
-		glm::vec3 front;
-		front.x = cos(glm::radians(yawCamera)) * cos(glm::radians(pitchCamera));
-		front.y = sin(glm::radians(pitchCamera));
-		front.z = sin(glm::radians(yawCamera)) * cos(glm::radians(pitchCamera));
-		cameraFront = glm::normalize(front);
+		firstMouse = false;
+		moved = false;
 	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos;
+
+	lastX = xpos;
+	lastY = ypos;
+
+	cam.ProcessMouseMovement(xoffset, yoffset);
 }
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	if (fov >= 1.0f && fov <= 45.0f)
-		fov -= yoffset;
-	if (fov <= 1.0f)
-		fov = 1.0f;
-	if (fov >= 45.0f)
-		fov = 45.0f;
+	cam.ProcessMouseScroll(yoffset);
 }
 float generateRandomCoord(float verticeCuboL)
 {
@@ -334,40 +310,4 @@ float generateRandomCoord(float verticeCuboL)
 	if (rand() % 2 == 0)
 		randomCoord *= -1;
 	return randomCoord;
-}
-unsigned int loadTexture(const char * path)
-{
-	unsigned int textureID;
-	glGenTextures(1, &textureID);
-
-	int width, height, nrComponents;
-	unsigned char *data = stbi_load(path, &width, &height, &nrComponents, 0);
-	if (data)
-	{
-		GLenum format;
-		if (nrComponents == 1)
-			format = GL_RED;
-		else if (nrComponents == 3)
-			format = GL_RGB;
-		else if (nrComponents == 4)
-			format = GL_RGBA;
-
-		glBindTexture(GL_TEXTURE_2D, textureID);
-		glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-		glGenerateMipmap(GL_TEXTURE_2D);
-
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-		stbi_image_free(data);
-	}
-	else
-	{
-		cout << "Texture failed to load at path: " << path << std::endl;
-		stbi_image_free(data);
-	}
-
-	return textureID;
 }
