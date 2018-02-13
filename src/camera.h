@@ -20,6 +20,7 @@ const float SPEED = 1.8f;
 const float SENSITIVTY = 0.1f;
 const float ZOOM = 45.0f;
 
+
 // An abstract camera class that processes input and calculates the corresponding Eular Angles, Vectors and Matrices for use in OpenGL
 class Camera
 {
@@ -30,6 +31,11 @@ class Camera
 		glm::vec3 Up;
 		glm::vec3 Right;
 		glm::vec3 WorldUp;
+		glm::vec3 P;
+		glm::vec3 F;
+		glm::vec3 U;
+		float Y;
+		float Pi;
 		// Eular Angles
 		float Yaw;
 		float Pitch;
@@ -43,10 +49,27 @@ class Camera
 				MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
 		{
 			Position = position;
+			P = position;
 			WorldUp = up;
+			U = up;
+			F = front;
 			Front = front;
 			Yaw = yaw;
+			Y = yaw;
 			Pitch = pitch;
+			Pi = pitch;
+			updateCameraVectors();
+		}
+		void setYaw(float f)
+		{
+			Yaw=f;
+			Y = f;
+			updateCameraVectors();
+		}
+		void setPitch(float f)
+		{
+			Pitch = f;
+			Pi = f;
 			updateCameraVectors();
 		}
 		// Constructor with scalar values
@@ -127,11 +150,11 @@ class Camera
 		}
 		void resetVisual()
 		{
-			Position = glm::vec3(7.6f, 0.003f, 13.0f);
-			Front = glm::vec3(-0.50f, -0.04f, -0.87f);
-			WorldUp = glm::vec3(0.0f, 1.0f, 0.0f);
-			Yaw = YAW;
-			Pitch = PITCH;
+			Position = P;
+			Front = F;
+			WorldUp = U;
+			Yaw = Y;
+			Pitch = Pi;
 			updateCameraVectors();
 
 		}
