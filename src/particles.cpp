@@ -52,7 +52,7 @@ float fov = 45.0f;
 float vertLC = 0.7f;
 float vertBC = 2.4f;
 float radius = 0.025f;
-int precisionSphere = 200;
+int precisionSphere = 100;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 float currentFrame;
@@ -181,14 +181,14 @@ int main()
 		lightShader.use();
 		lightShader.setVec3("light.position", light.Position);
 		lightShader.setVec3("light.direction", light.Front);
-		lightShader.setFloat("light.cutOff", glm::cos(glm::radians(-2.0f)));
+		lightShader.setFloat("light.cutOff", glm::cos(glm::radians(0.0f)));
 		lightShader.setFloat("light.outerCutOff", glm::cos(glm::radians(8.0f)));
 		lightShader.setVec3("viewPos", light.Front);
 		lightShader.setVec3("light.ambient", lightColor * 0.5f);
 		lightShader.setVec3("light.diffuse", lightColor * 0.8f);
 		lightShader.setVec3("light.specular", lightColor);
 		lightShader.setFloat("light.constant", 1.0f);
-		lightShader.setFloat("light.linear", 0.1f);
+		lightShader.setFloat("light.linear", 0.4f);
 		lightShader.setFloat("light.quadratic", 0.035f);
 		lightShader.setFloat("material.alpha", 0.4f);
 		lightShader.setVec3("material.ambient", (cubeColor * 0.8f));
@@ -222,7 +222,7 @@ int main()
 		{
 			modelL = glm::translate(modelL, particle.getPosition(i));
 			lightShader.setMat4("model", modelL);
-			glDrawArrays( GL_TRIANGLES, 0, particle.getNumberVertex());
+			glDrawArrays( GL_TRIANGLE_STRIP, 0, particle.getNumberVertex());
 
 			modelL = glm::translate(modelL, particle.getPositionInverse(i));
 			if (beginShow)
@@ -250,7 +250,7 @@ int main()
 		model = glm::rotate(model, glm::radians(light.Pitch), glm::vec3(0.0f, 0.0f, 1.0f));
 		objShader.setMat4("model", model);
 		glBindVertexArray(VAOcone);
-		glDrawArrays(GL_TRIANGLES, 0, nVertexCone * sizeof(float));
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, nVertexCone * sizeof(float));
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}

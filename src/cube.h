@@ -62,6 +62,7 @@ class Cube
 			float temp[numbDetails] =
 			{
 
+
 			-vertice, -vertice, -vertice, 0.0f, 0.0f, -1.0f, vertice, -vertice, -vertice, 0.0f, 0.0f, -1.0f, vertice,
 					vertice, -vertice, 0.0f, 0.0f, -1.0f, vertice, vertice, -vertice, 0.0f, 0.0f, -1.0f, -vertice,
 					vertice, -vertice, 0.0f, 0.0f, -1.0f, -vertice, -vertice, -vertice, 0.0f, 0.0f, -1.0f,
@@ -84,8 +85,9 @@ class Cube
 
 					-vertice, vertice, -vertice, 0.0f, 1.0f, 0.0f, vertice, vertice, -vertice, 0.0f, 1.0f, 0.0f,
 					vertice, vertice, vertice, 0.0f, 1.0f, 0.0f, vertice, vertice, vertice, 0.0f, 1.0f, 0.0f, -vertice,
-					vertice, vertice, 0.0f, 1.0f, 0.0f, -vertice, vertice, -vertice, 0.0f, 1.0f, 0.0f,
+					vertice, vertice, 0.0f, 1.0f, 0.0f, -vertice, vertice, -vertice, 0.0f, 1.0f, 0.0f
 							 };
+
 
 			for (int i = 0; i < numbDetails; i++)
 				vertices[i] = temp[i];
