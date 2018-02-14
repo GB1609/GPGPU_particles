@@ -19,7 +19,7 @@ class Particle
 	private:
 		float radius;
 		float size;
-		int numberVertex;
+		long int numberVertex;
 		int lats, longs;
 		vector<glm::vec3> positions;
 		vector<glm::vec3> positionsInverse;
@@ -74,7 +74,7 @@ class Particle
 			return i + j * (lats + 1);
 		}
 
-		int getNumberVertex() const
+		long int getNumberVertex() const
 		{
 			return numberVertex;
 		}

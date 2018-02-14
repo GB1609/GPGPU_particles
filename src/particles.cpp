@@ -24,8 +24,8 @@ void processInput(GLFWwindow *window, Particle& particle);
 float generateRandomCoord(float);
 
 // settings
-const unsigned int SCR_WIDTH = 1000;
-const unsigned int SCR_HEIGHT = 1000;
+const unsigned int SCR_WIDTH = 800;
+const unsigned int SCR_HEIGHT = 800;
 
 // camera
 glm::vec3 cameraPos = glm::vec3(7.6f, 0.003f, 13.0f);
@@ -49,14 +49,14 @@ Camera light(lightPos, lightDirection, lightUp);
 float lastX = 800.0f / 2.0;
 float lastY = 600.0 / 2.0;
 float fov = 45.0f;
-float vertLC = 0.8f;
-float vertBC = 2.5f;
+float vertLC = 0.7f;
+float vertBC = 2.4f;
 float radius = 0.025f;
 int precisionSphere = 200;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 float currentFrame;
-int numberParticles = 200;
+int numberParticles = 150;
 bool beginShow = false;
 
 int main()
@@ -136,16 +136,30 @@ int main()
 	//////////////////////////PARTICLES////////////////////////////////////////
 	/////////////////////////pyramid//////////////////////////////////////////////
 	unsigned int VAOcone, VBOcone, EBOcone;
-	unsigned int nVertexCone = vertexPyramid();
+	Cone cone;
+	int increment = 10;
+
+	unsigned int nVertexCone = cone.dimensionCone(increment);
 	float vertexCone[nVertexCone];
-	createPyramid(vertexCone, 0.2f);
+	cone.createCone(vertexCone, 2.00f, increment);
 	glGenVertexArrays(1, &VAOcone);
 	glGenBuffers(1, &VBOcone);
 	glBindVertexArray(VAOcone);
 	glBindBuffer(GL_ARRAY_BUFFER, VBOcone);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexCone), vertexCone, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, nVertexCone * sizeof(float), vertexCone, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
 	glEnableVertexAttribArray(0);
+
+//	unsigned int nVertexCone = cone.vertexPyramid();
+//	float vertexCone[nVertexCone];
+//	cone.createPyramid(vertexCone, 0.2f);
+//	glGenVertexArrays(1, &VAOcone);
+//	glGenBuffers(1, &VBOcone);
+//	glBindVertexArray(VAOcone);
+//	glBindBuffer(GL_ARRAY_BUFFER, VBOcone);
+//	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexCone), vertexCone, GL_STATIC_DRAW);
+//	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
+//	glEnableVertexAttribArray(0);
 	/////////////////////////pyramid//////////////////////////////////
 	////////////////////////SHADERS////////////////////////////////////
 	Shader lightShader("src/lightShader.vs", "src/lightShader.fs");
@@ -161,7 +175,7 @@ int main()
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
 		processInput(window, particle);
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		lightShader.use();
@@ -229,13 +243,14 @@ int main()
 		objShader.setMat4("model", model);
 		glBindVertexArray(VAObc);
 		glDrawElements(GL_LINES, cube.getDimI(), GL_UNSIGNED_INT, 0);
+		model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
 		model = glm::translate(model, light.Position);
 		model = glm::rotate(model, glm::radians(112.0f), spotRotation);
 		model = glm::rotate(model, glm::radians(-90.0f - light.Yaw), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(light.Pitch), glm::vec3(0.0f, 0.0f, 1.0f));
 		objShader.setMat4("model", model);
 		glBindVertexArray(VAOcone);
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(vertexCone));
+		glDrawArrays(GL_TRIANGLES, 0, nVertexCone * sizeof(float));
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
