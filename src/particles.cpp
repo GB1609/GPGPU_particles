@@ -37,14 +37,13 @@ glm::vec3 lightDirection = glm::vec3(0.0f, 0.01f, -1.0f);
 glm::vec3 lightUp = glm::vec3(0.09f, 1.0f, -0.01);
 glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 0.0f);
 glm::vec3 cubeColor = glm::vec3(0.8f, 0.8f, 0.8f);
-glm::vec3 bCubeColor = glm::vec3(1.0f, 1.0f, 1.0f);
-glm::vec3 spotColor = glm::vec3(0.3f, 1.0f, 0.3f);
 glm::vec3 particleColor = glm::vec3(1.0f, 0.9f, 0.0f);
 
 bool firstMouse = true;
 bool moved = false;
 bool pressed1 = false;
 bool pressed2 = false;
+glm::vec3 spotRotation = glm::vec3(0.975f, 1.0f, 1.2f);
 Camera cam(cameraPos, cameraUp, cameraFront);
 Camera light(lightPos, lightDirection, lightUp);
 float lastX = 800.0f / 2.0;
@@ -104,7 +103,7 @@ int main()
 	float vertexBC[cube.getDimV()];
 	unsigned int indexBC[cube.getDimI()];
 	cube.setVertexAndIndices(vertBC, indexBC, vertexBC);
-	unsigned int VBObc, VAObc, EBObc;
+	unsigned int VBObc, VAObc, EBObc, COLlc;
 	glGenVertexArrays(1, &VAObc);
 	glGenBuffers(1, &VBObc);
 	glGenBuffers(1, &EBObc);
@@ -115,7 +114,6 @@ int main()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexBC), indexBC, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
 	glEnableVertexAttribArray(0);
-
 	//////////////////////////////////////////bigCUBE//////////////////////////////
 	//////////////////////////////////PARTICLES//////////////////////////////////
 	unsigned int VBOpart, VAOpart;
@@ -136,31 +134,25 @@ int main()
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
 	glEnableVertexAttribArray(1);
 	//////////////////////////PARTICLES////////////////////////////////////////
-	/////////////////////////CONE/////////////////////////////////////////////
-	ConeGenerator coneG;
-	unsigned int VBOcone, VAOcone, EBOcone;
-	float vertexCone[coneG.LightConeNumVertices(100, 3)];
-	unsigned int indexCone[coneG.LightConeNumIndices(100, 30.0f, 0.0f, true, false)];
-	coneG.CreateLightCone(vertexCone, indexCone,
-			100, 20.0f, 0.0f, 2.0f, 10, true, false);
-	cout << sizeof(indexCone) << endl;
+	/////////////////////////pyramid//////////////////////////////////////////////
+	unsigned int VAOcone, VBOcone, EBOcone;
+	unsigned int nVertexCone = vertexPyramid();
+	float vertexCone[nVertexCone];
+	createPyramid(vertexCone, 0.2f);
 	glGenVertexArrays(1, &VAOcone);
 	glGenBuffers(1, &VBOcone);
-	glGenBuffers(1, &EBOcone);
 	glBindVertexArray(VAOcone);
 	glBindBuffer(GL_ARRAY_BUFFER, VBOcone);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexCone), vertexCone, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBOcone);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexCone), indexCone, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
 	glEnableVertexAttribArray(0);
-	/////////////////////////CONE//////////////////////////////////
+	/////////////////////////pyramid//////////////////////////////////
 	////////////////////////SHADERS////////////////////////////////////
 	Shader lightShader("src/lightShader.vs", "src/lightShader.fs");
 	Shader objShader("src/objects.vs", "src/objects.fs");
 	////////////////////////////SHDAERS//////////////////////////////
-//	glEnable(GL_DEPTH_TEST);
-//	glDepthFunc(GL_ALWAYS);
+	glEnable(GL_DEPTH_TEST);
+	glDepthFunc(GL_ALWAYS);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	while (!glfwWindowShouldClose(window))
@@ -235,14 +227,14 @@ int main()
 		float angle = 0;
 		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 		objShader.setMat4("model", model);
-		objShader.setVec3("ColorIn", bCubeColor);
 		glBindVertexArray(VAObc);
 		glDrawElements(GL_LINES, cube.getDimI(), GL_UNSIGNED_INT, 0);
-		model = glm::translate(model, glm::vec3(3.0f, 3.0f, 3.0f));
-		objShader.setVec3("ColorIN", bCubeColor);
+		model = glm::translate(model, light.Position);
+		model = glm::rotate(model, glm::radians(112.4f), spotRotation);
+		model = glm::rotate(model, glm::radians(light.Pitch), (light.Position + light.Front));
 		objShader.setMat4("model", model);
 		glBindVertexArray(VAOcone);
-		glDrawArrays(GL_TRIANGLES, 0, sizeof(indexCone));
+		glDrawArrays(GL_TRIANGLES, 0, sizeof(vertexCone));
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -399,3 +391,4 @@ float generateRandomCoord(float verticeCuboL)
 		randomCoord *= -1;
 	return randomCoord;
 }
+

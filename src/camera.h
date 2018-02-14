@@ -16,7 +16,7 @@ enum Camera_Movement
 // Default camera values
 const float YAW = -120.0f;
 const float PITCH = 0.0f;
-const float SPEED = 1.8f;
+const float SPEED = 4.8f;
 const float SENSITIVTY = 0.1f;
 const float ZOOM = 45.0f;
 
@@ -83,13 +83,11 @@ class Camera
 			updateCameraVectors();
 		}
 
-		// Returns the view matrix calculated using Eular Angles and the LookAt Matrix
 		glm::mat4 GetViewMatrix()
 		{
 			return glm::lookAt(Position, Position + Front, Up);
 		}
 
-		// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
 		void ProcessKeyboard(Camera_Movement direction, float deltaTime)
 		{
 			float velocity = MovementSpeed * deltaTime;

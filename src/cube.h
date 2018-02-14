@@ -40,7 +40,7 @@ class Cube
 					0, 3, 3, 7, 7, 4, 4, 0,  //top face
 					};
 			float inverso = vertice * -1;
-			float temp1[] =
+			float temp[] =
 			{ vertice, vertice, vertice,  // top right
 					vertice, inverso, vertice,  // bottom right
 					inverso, inverso, vertice,  // bottom left
@@ -52,7 +52,7 @@ class Cube
 			for (int i = 0; i < dimI; i++)
 			{
 				if (i < dimV)
-					vertices[i] = temp1[i];
+					vertices[i] = temp[i];
 				indices[i] = temp2[i];
 			}
 		}
@@ -84,7 +84,8 @@ class Cube
 
 					-vertice, vertice, -vertice, 0.0f, 1.0f, 0.0f, vertice, vertice, -vertice, 0.0f, 1.0f, 0.0f,
 					vertice, vertice, vertice, 0.0f, 1.0f, 0.0f, vertice, vertice, vertice, 0.0f, 1.0f, 0.0f, -vertice,
-					vertice, vertice, 0.0f, 1.0f, 0.0f, -vertice, vertice, -vertice, 0.0f, 1.0f, 0.0f, };
+					vertice, vertice, 0.0f, 1.0f, 0.0f, -vertice, vertice, -vertice, 0.0f, 1.0f, 0.0f,
+							 };
 
 			for (int i = 0; i < numbDetails; i++)
 				vertices[i] = temp[i];
