@@ -51,12 +51,12 @@ float lastY = 600.0 / 2.0;
 float fov = 45.0f;
 float vertLC = 0.8f;
 float vertBC = 2.5f;
-float radius = 0.03f;
-int precisionSphere = 225;
+float radius = 0.025f;
+int precisionSphere = 200;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 float currentFrame;
-int numberParticles = 100;
+int numberParticles = 200;
 bool beginShow = false;
 
 int main()
@@ -230,8 +230,9 @@ int main()
 		glBindVertexArray(VAObc);
 		glDrawElements(GL_LINES, cube.getDimI(), GL_UNSIGNED_INT, 0);
 		model = glm::translate(model, light.Position);
-		model = glm::rotate(model, glm::radians(112.4f), spotRotation);
-		model = glm::rotate(model, glm::radians(light.Pitch), (light.Position + light.Front));
+		model = glm::rotate(model, glm::radians(112.0f), spotRotation);
+		model = glm::rotate(model, glm::radians(-90.0f - light.Yaw), glm::vec3(1.0f, 0.0f, 0.0f));
+		model = glm::rotate(model, glm::radians(light.Pitch), glm::vec3(0.0f, 0.0f, 1.0f));
 		objShader.setMat4("model", model);
 		glBindVertexArray(VAOcone);
 		glDrawArrays(GL_TRIANGLES, 0, sizeof(vertexCone));

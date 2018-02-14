@@ -19,7 +19,8 @@ class Particle
 	private:
 		float radius;
 		float size;
-		int numberVertex, lats, longs;
+		int numberVertex;
+		int lats, longs;
 		vector<glm::vec3> positions;
 		vector<glm::vec3> positionsInverse;
 	public:
@@ -28,7 +29,7 @@ class Particle
 			positions.push_back(glm::vec3(a, b, c));
 			positionsInverse.push_back(glm::vec3(a * -1, b * -1, c * -1));
 		}
-		void setVertex(float vertex[])
+		void setVertex(float* vertex)
 		{
 			int cont = 0;
 			float radiusNegative = radius * -1;
