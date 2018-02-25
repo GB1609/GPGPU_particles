@@ -28,7 +28,7 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 800;
 
 // camera
-glm::vec3 cameraPos = glm::vec3(7.6f, 0.003f, 13.0f);
+glm::vec3 cameraPosFirst = glm::vec3(7.0f, 0.003f, 15.0f);
 glm::vec3 cameraFront = glm::vec3(-0.50f, -0.04f, -0.87f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -44,10 +44,10 @@ bool moved = false;
 bool pressed1 = false;
 bool pressed2 = false;
 glm::vec3 spotRotation = glm::vec3(0.975f, 1.0f, 1.2f);
-Camera cam(cameraPos, cameraUp, cameraFront);
+Camera cam(cameraPosFirst, cameraUp, cameraFront);
 Camera light(lightPos, lightDirection, lightUp);
 float lastX = 800.0f / 2.0;
-float lastY = 600.0 / 2.0;
+float lastY = 800.0 / 2.0;
 float fov = 45.0f;
 float vertLC = 0.7f;
 float vertBC = 2.4f;
@@ -65,7 +65,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "PARTICLES", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -103,17 +103,18 @@ int main()
 	float vertexBC[cube.getDimV()];
 	unsigned int indexBC[cube.getDimI()];
 	cube.setVertexAndIndices(vertBC, indexBC, vertexBC);
-	unsigned int VBObc, VAObc, EBObc, COLlc;
+	unsigned int VBObc, VAObc, EBObc;
 	glGenVertexArrays(1, &VAObc);
 	glGenBuffers(1, &VBObc);
 	glGenBuffers(1, &EBObc);
 	glBindVertexArray(VAObc);
 	glBindBuffer(GL_ARRAY_BUFFER, VBObc);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBC), vertexBC, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexBC) * sizeof(float), vertexBC, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBObc);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indexBC), indexBC, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) (0 * sizeof(float)));
 	glEnableVertexAttribArray(0);
+
 	//////////////////////////////////////////bigCUBE//////////////////////////////
 	//////////////////////////////////PARTICLES//////////////////////////////////
 	unsigned int VBOpart, VAOpart;
@@ -176,19 +177,19 @@ int main()
 		lastFrame = currentFrame;
 		processInput(window, particle);
 		glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT);
 
 		lightShader.use();
 		lightShader.setVec3("light.position", light.Position);
 		lightShader.setVec3("light.direction", light.Front);
 		lightShader.setFloat("light.cutOff", glm::cos(glm::radians(0.0f)));
-		lightShader.setFloat("light.outerCutOff", glm::cos(glm::radians(8.0f)));
+		lightShader.setFloat("light.outerCutOff", glm::cos(glm::radians(23.0f)));
 		lightShader.setVec3("viewPos", light.Front);
 		lightShader.setVec3("light.ambient", lightColor * 0.5f);
 		lightShader.setVec3("light.diffuse", lightColor * 0.8f);
 		lightShader.setVec3("light.specular", lightColor);
 		lightShader.setFloat("light.constant", 1.0f);
-		lightShader.setFloat("light.linear", 0.4f);
+		lightShader.setFloat("light.linear", 0.1f);
 		lightShader.setFloat("light.quadratic", 0.035f);
 		lightShader.setFloat("material.alpha", 0.4f);
 		lightShader.setVec3("material.ambient", (cubeColor * 0.8f));
@@ -198,7 +199,7 @@ int main()
 
 		//glm::mat4 projectionProspective = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
 		glm::mat4 projectionL = glm::perspective(glm::radians(fov), (float) SCR_WIDTH / (float) SCR_HEIGHT, 0.1f,
-				100.0f);
+				1000.0f);
 		glm::mat4 viewL = cam.GetViewMatrix();
 		lightShader.setMat4("projection", projectionL);
 		lightShader.setMat4("view", viewL);
@@ -215,7 +216,7 @@ int main()
 		lightShader.setVec3("material.ambient", (particleColor * 0.8f));
 		lightShader.setVec3("material.diffuse", (particleColor * 0.9f));
 		lightShader.setVec3("material.specular", particleColor);
-		lightShader.setFloat("material.shininess", 40.0f);
+		lightShader.setFloat("material.shininess", 35.0f);
 		lightShader.setFloat("material.alpha", 1.0f);
 		glBindVertexArray(VAOpart);
 		for (int i = 0; i < numberParticles; i++)
@@ -241,14 +242,16 @@ int main()
 		float angle = 0;
 		model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
 		objShader.setMat4("model", model);
+		objShader.setBool("cone", false);
 		glBindVertexArray(VAObc);
-		glDrawElements(GL_LINES, cube.getDimI(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_LINES, sizeof(indexBC), GL_UNSIGNED_INT, 0);
 		model = glm::scale(model, glm::vec3(0.3f, 0.3f, 0.3f));
 		model = glm::translate(model, light.Position);
 		model = glm::rotate(model, glm::radians(112.0f), spotRotation);
 		model = glm::rotate(model, glm::radians(-90.0f - light.Yaw), glm::vec3(1.0f, 0.0f, 0.0f));
 		model = glm::rotate(model, glm::radians(light.Pitch), glm::vec3(0.0f, 0.0f, 1.0f));
 		objShader.setMat4("model", model);
+		objShader.setBool("cone", true);
 		glBindVertexArray(VAOcone);
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, nVertexCone * sizeof(float));
 		glfwSwapBuffers(window);
