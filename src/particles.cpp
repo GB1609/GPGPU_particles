@@ -150,7 +150,7 @@ int main()
 	glBufferData(GL_ARRAY_BUFFER, nVertexCone * sizeof(float), vertexCone, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
 	glEnableVertexAttribArray(0);
-
+	l
 //	unsigned int nVertexCone = cone.vertexPyramid();
 //	float vertexCone[nVertexCone];
 //	cone.createPyramid(vertexCone, 0.2f);
