@@ -10,13 +10,13 @@
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement
 {
-	FORWARD, BACKWARD, LEFT, RIGHT
+	FORWARD, BACKWARD, LEFT, RIGHT, ROTATERIGHT, ROTATELEFT, ROTATEUP, ROTATEDOWN
 };
 
 // Default camera values
 const float YAW = -114.0f;
 const float PITCH = 1.0f;
-const float SPEED = 4.8f;
+const float SPEED = 6.0f;
 const float SENSITIVTY = 0.1f;
 const float ZOOM = 45.0f;
 
@@ -101,6 +101,27 @@ class Camera
 				Position -= Right * velocity;
 			if (direction == RIGHT)
 				Position += Right * velocity;
+
+			if (direction == ROTATERIGHT)
+			{
+				Yaw += velocity;
+				updateCameraVectors();
+			}
+			if (direction == ROTATELEFT)
+			{
+				Yaw -= velocity;
+				updateCameraVectors();
+			}
+			if (direction == ROTATEUP)
+			{
+				Pitch += velocity;
+				updateCameraVectors();
+			}
+			if (direction == ROTATEDOWN)
+			{
+				Pitch -= velocity;
+				updateCameraVectors();
+			}
 		}
 
 		// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.

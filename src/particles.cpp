@@ -77,6 +77,9 @@ int main()
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+	glfwPollEvents();
+
+
 	if (!gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -150,7 +153,7 @@ int main()
 	glBufferData(GL_ARRAY_BUFFER, nVertexCone * sizeof(float), vertexCone, GL_STATIC_DRAW);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
 	glEnableVertexAttribArray(0);
-	l
+
 //	unsigned int nVertexCone = cone.vertexPyramid();
 //	float vertexCone[nVertexCone];
 //	cone.createPyramid(vertexCone, 0.2f);
@@ -166,8 +169,6 @@ int main()
 	Shader lightShader("src/lightShader.vs", "src/lightShader.fs");
 	Shader objShader("src/objects.vs", "src/objects.fs");
 	////////////////////////////SHDAERS//////////////////////////////
-	glEnable(GL_DEPTH_TEST);
-	glDepthFunc(GL_ALWAYS);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	while (!glfwWindowShouldClose(window))
@@ -189,7 +190,7 @@ int main()
 		lightShader.setVec3("light.diffuse", lightColor * 0.8f);
 		lightShader.setVec3("light.specular", lightColor);
 		lightShader.setFloat("light.constant", 1.0f);
-		lightShader.setFloat("light.linear", 0.1f);
+		lightShader.setFloat("light.linear", 0.01f);
 		lightShader.setFloat("light.quadratic", 0.035f);
 		lightShader.setFloat("material.alpha", 0.4f);
 		lightShader.setVec3("material.ambient", (cubeColor * 0.8f));
@@ -313,44 +314,85 @@ void processInput(GLFWwindow *window, Particle& particella)
 		cout << cam.Front.x << "/" << cam.Front.y << "/" << cam.Front.z << endl;
 		cout << cam.Up.x << "/" << cam.Up.y << "/" << cam.Up.z << endl;
 	}
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS)
 	{
 		cam.ProcessKeyboard(FORWARD, deltaTime);
 		moved = true;
 	}
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS)
 	{
 		cam.ProcessKeyboard(BACKWARD, deltaTime);
 		moved = true;
 	}
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS)
 	{
 		cam.ProcessKeyboard(LEFT, deltaTime);
 		moved = true;
 	}
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS)
 	{
 		cam.ProcessKeyboard(RIGHT, deltaTime);
 		moved = true;
 	}
-	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
 	{
 		light.ProcessKeyboard(FORWARD, deltaTime);
 		moved = true;
 	}
-	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
 	{
 		light.ProcessKeyboard(BACKWARD, deltaTime);
 		moved = true;
 	}
-	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
 	{
 		light.ProcessKeyboard(LEFT, deltaTime);
 		moved = true;
 	}
-	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
 	{
 		light.ProcessKeyboard(RIGHT, deltaTime);
+		moved = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS)
+	{
+		cam.ProcessKeyboard(ROTATELEFT, deltaTime);
+		moved = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS)
+	{
+		cam.ProcessKeyboard(ROTATERIGHT, deltaTime);
+		moved = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS)
+	{
+		cam.ProcessKeyboard(ROTATEUP, deltaTime);
+		moved = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_ALT) != GLFW_PRESS)
+	{
+		cam.ProcessKeyboard(ROTATEDOWN, deltaTime);
+		moved = true;
+	}
+
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
+	{
+		light.ProcessKeyboard(ROTATELEFT, deltaTime);
+		moved = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
+	{
+		light.ProcessKeyboard(ROTATERIGHT, deltaTime);
+		moved = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
+	{
+		light.ProcessKeyboard(ROTATEUP, deltaTime);
+		moved = true;
+	}
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS && glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_PRESS)
+	{
+		light.ProcessKeyboard(ROTATEDOWN, deltaTime);
 		moved = true;
 	}
 
